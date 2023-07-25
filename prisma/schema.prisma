@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Users {
-  id           String   @id @default(uuid())
-  name         String   @db.VarChar(63)
-  email        String   @db.VarChar(127)
-  passwordHash String   @db.VarChar(127)
-  created_at   DateTime @default(now())
-  update_at    DateTime @default(now())
+  id           String    @id @default(uuid())
+  name         String    @db.VarChar(63)
+  email        String    @db.VarChar(127)
+  passwordHash String    @db.VarChar(127)
+  birthAt      DateTime? @db.Date()
+  created_at   DateTime  @default(now())
+  update_at    DateTime  @default(now())
 
   @@map("user")
 }
