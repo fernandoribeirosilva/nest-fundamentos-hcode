@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { hash } from 'bcryptjs'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateUserDTO } from './dto/create-user.dto'
@@ -30,7 +30,7 @@ export class UserService {
       },
     })
 
-    return user
+    return { user }
   }
 
   async list() {
@@ -45,13 +45,17 @@ export class UserService {
       },
     })
 
-    return user
+    return { user }
   }
 
   async update(
     id: string,
     { name, email, password, birthAt }: UpdatePutUserDTO,
   ) {
+    if (!(await this.show(id))) {
+      throw new NotFoundException('O usuário não existe.')
+    }
+
     const user = await this.prisma.users.update({
       where: {
         id,
@@ -64,11 +68,15 @@ export class UserService {
       },
     })
 
-    return user
+    return { user }
   }
 
   async updatePartial(id: string, data: UpdatePatchUserDTO) {
     let dataUser: any = {}
+
+    if (!(await this.show(id))) {
+      throw new NotFoundException('O usuário não existe.')
+    }
 
     for (const prop in data) {
       if (prop) {
@@ -86,6 +94,18 @@ export class UserService {
       data: dataUser,
     })
 
-    return user
+    return { user }
+  }
+
+  async delete(id: string) {
+    if (await this.show(id)) {
+      throw new Error('O usuário não existe.')
+    }
+
+    return await this.prisma.users.delete({
+      where: {
+        id,
+      },
+    })
   }
 }

@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -83,9 +82,18 @@ export class UserController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id) {
-    return {
-      id,
+  async delete(@Res() res: Response, @Param('id', ParseUUIDPipe) id: string) {
+    try {
+      await this.userService.delete(id)
+      return res.status(200).json({})
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error)
+
+        return res.status(404).json({ error: error.message })
+      }
+
+      throw error
     }
   }
 }
