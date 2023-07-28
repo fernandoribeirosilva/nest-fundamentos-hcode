@@ -16,10 +16,12 @@ import { UpdatePatchUserDTO } from './dto/update-patch-user.dto'
 import { UpdatePutUserDTO } from './dto/update-put-user.dto'
 import { UserService } from './user.service'
 
+// @UseInterceptors(LogInterceptor)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  // @UseInterceptors(LogInterceptor)
   @Post()
   async create(@Res() res: Response, @Body() body: CreateUserDTO) {
     try {
