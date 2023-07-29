@@ -39,6 +39,14 @@ export class UserService {
   }
 
   async show(id: string) {
+    const existsUser = await this.prisma.users.count({
+      where: { id },
+    })
+
+    if (!existsUser) {
+      throw new Error('O usuário não existe.')
+    }
+
     const user = await this.prisma.users.findUnique({
       where: {
         id,
