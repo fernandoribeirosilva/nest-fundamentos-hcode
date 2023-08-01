@@ -4,6 +4,7 @@ import { env } from 'src/env'
 import { PrismaModule } from 'src/prisma/prisma.module'
 import { UserModule } from '../controllers/user/user.module'
 import { AuthController } from './auth-controller'
+import { AuthJwtService } from './auth-jwt-service'
 
 @Module({
   imports: [
@@ -14,5 +15,6 @@ import { AuthController } from './auth-controller'
     UserModule,
   ],
   controllers: [AuthController],
+  providers: [AuthJwtService],
 })
 export class AuthJwtModule {}

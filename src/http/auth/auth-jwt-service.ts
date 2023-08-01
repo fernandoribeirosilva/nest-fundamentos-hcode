@@ -1,36 +1,81 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { hash } from 'bcryptjs'
+import { Users } from '@prisma/client'
+import { compare, hash } from 'bcryptjs'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { UserService } from '../controllers/user/user.service'
+import { AuthRegisterDTO } from './dto/register-dto'
 
 @Injectable()
 export class AuthJwtService {
+  private issuer = 'login'
+  private audience = 'users'
+
   constructor(
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
+    private readonly userService: UserService,
   ) {}
 
-  static async createToken() {
-    // return this.jwtService.sign()
+  createToken(user: Users) {
+    const token = this.jwt.sign(
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      {
+        expiresIn: '10 seconds',
+        subject: String(user.id),
+        issuer: this.issuer,
+        audience: this.audience,
+      },
+    )
+
+    return token
   }
 
-  static async checkToken() {
-    // return this.jwtService.verify()
+  async checkToken(token: string) {
+    try {
+      const isValidToken = await this.jwt.verify(token, {
+        issuer: this.issuer,
+        audience: this.audience,
+      })
+
+      return isValidToken
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
+  }
+
+  async isValidToken(token: string) {
+    try {
+      this.checkToken(token)
+      return true
+    } catch (error) {
+      return false
+    }
   }
 
   async login(email: string, password: string) {
     const user = await this.prisma.users.findFirst({
       where: {
         email,
-        passwordHash: password,
       },
     })
 
-    if (!user) {
+    const isValidEmail = await compare(password, user.passwordHash)
+    if (!user && !isValidEmail) {
       throw new UnauthorizedException('E-mail e/ou senha incorretos!')
     }
 
-    return user
+    return {
+      token: this.createToken(user),
+    }
   }
 
   async forget(email: string) {
@@ -55,7 +100,7 @@ export class AuthJwtService {
 
     // TODO: validar o token...
 
-    await this.prisma.users.update({
+    const user = await this.prisma.users.update({
       where: {
         id,
       },
@@ -64,6 +109,16 @@ export class AuthJwtService {
       },
     })
 
-    return true
+    return {
+      token: this.createToken(user),
+    }
+  }
+
+  async register(data: AuthRegisterDTO) {
+    const user = await this.userService.create(data)
+
+    return {
+      token: this.createToken(user),
+    }
   }
 }

@@ -30,7 +30,7 @@ export class UserService {
       },
     })
 
-    return { user }
+    return user
   }
 
   async list() {
@@ -44,6 +44,7 @@ export class UserService {
     })
 
     if (!existsUser) {
+      console.log(id, existsUser)
       throw new Error('O usuário não existe.')
     }
 
@@ -53,7 +54,7 @@ export class UserService {
       },
     })
 
-    return { user }
+    return user
   }
 
   async update(
@@ -106,7 +107,9 @@ export class UserService {
   }
 
   async delete(id: string) {
-    if (await this.show(id)) {
+    console.log('delete', id)
+
+    if (!(await this.show(id))) {
       throw new Error('O usuário não existe.')
     }
 

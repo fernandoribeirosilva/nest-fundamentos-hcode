@@ -1,17 +1,15 @@
-import { Body, Controller, Post } from '@nestjs/common'
-import { UserService } from '../controllers/user/user.service'
+import { Body, Controller, Post, Res } from '@nestjs/common'
+import { Response } from 'express'
 import { AuthJwtService } from './auth-jwt-service'
 import { AuthForgetDTO } from './dto/auth-forget-dto'
 import { AuthLoginDTO } from './dto/auth-login-dto'
+import { AuthMeDTO } from './dto/auth-me-dto'
 import { AuthResetDTO } from './dto/auth-reset-dto'
 import { AuthRegisterDTO } from './dto/register-dto'
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private userService: UserService,
-    private authService: AuthJwtService,
-  ) {}
+  constructor(private authService: AuthJwtService) {}
 
   @Post('login')
   async login(@Body() { email, password }: AuthLoginDTO) {
@@ -19,8 +17,9 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() body: AuthRegisterDTO) {
-    return await this.userService.create(body)
+  async register(@Res() res: Response, @Body() body: AuthRegisterDTO) {
+    const token = await this.authService.register(body)
+    return res.status(201).json({ token })
   }
 
   @Post('forget')
@@ -31,5 +30,10 @@ export class AuthController {
   @Post('reset')
   async reset(@Body() { password, token }: AuthResetDTO) {
     return await this.authService.reset(password, token)
+  }
+
+  @Post('me')
+  async me(@Body() { token }: AuthMeDTO) {
+    return await this.authService.checkToken(token)
   }
 }
