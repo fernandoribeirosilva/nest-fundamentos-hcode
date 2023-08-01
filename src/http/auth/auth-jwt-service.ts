@@ -39,9 +39,9 @@ export class AuthJwtService {
     return token
   }
 
-  async checkToken(token: string) {
+  checkToken(token: string) {
     try {
-      const isValidToken = await this.jwt.verify(token, {
+      const isValidToken = this.jwt.verify(token, {
         issuer: this.issuer,
         audience: this.audience,
       })
@@ -52,7 +52,7 @@ export class AuthJwtService {
     }
   }
 
-  async isValidToken(token: string) {
+  isValidToken(token: string) {
     try {
       this.checkToken(token)
       return true
