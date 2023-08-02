@@ -1,5 +1,6 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common'
 import { Response } from 'express'
+import { User } from '../decorators/user-decorator'
 import { AuthGuard } from '../guards/auth-gaurd'
 import { AuthJwtService } from './auth-jwt-service'
 import { AuthForgetDTO } from './dto/auth-forget-dto'
@@ -34,8 +35,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Post('me')
-  async me(@Req() req) {
-    return { me: 'ok', data: req.tokenPayload }
+  async me(@User('id') user) {
+    return { user }
     // return await this.authService.checkToken(token)
   }
 }
