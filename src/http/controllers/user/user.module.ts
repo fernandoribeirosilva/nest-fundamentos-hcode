@@ -3,14 +3,16 @@ import {
   Module,
   NestModule,
   RequestMethod,
+  forwardRef,
 } from '@nestjs/common'
+import { AuthJwtModule } from 'src/http/auth/auth-jwt-module'
 import { UserIdCheckMiddleware } from 'src/http/middlewares/user-id-check-middleware'
 import { PrismaModule } from 'src/prisma/prisma.module'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, forwardRef(() => AuthJwtModule)],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

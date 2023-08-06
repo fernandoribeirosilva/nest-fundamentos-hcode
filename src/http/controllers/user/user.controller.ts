@@ -9,14 +9,21 @@ import {
   Post,
   Put,
   Res,
+  UseGuards,
 } from '@nestjs/common'
 import { Response } from 'express'
+import { Role } from 'src/enums/role-enum'
+import { Roles } from 'src/http/decorators/role-decorator'
+import { AuthGuard } from 'src/http/guards/auth-gaurd'
+import { RoleGuard } from 'src/http/guards/role-gaurd'
 import { CreateUserDTO } from './dto/create-user.dto'
 import { UpdatePatchUserDTO } from './dto/update-patch-user.dto'
 import { UpdatePutUserDTO } from './dto/update-put-user.dto'
 import { UserService } from './user.service'
 
 // @UseInterceptors(LogInterceptor)
+@Roles(Role.Admin)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -38,6 +45,7 @@ export class UserController {
     }
   }
 
+  // @Roles(Role.Admin, Role.User)
   @Get()
   async list(@Res() res: Response) {
     try {
@@ -57,6 +65,8 @@ export class UserController {
   @Get(':id')
   async show(@Res() res: Response, @Param('id', ParseUUIDPipe) id: string) {
     try {
+      console.log('user:id', id)
+
       const user = await this.userService.show(id)
 
       return res.status(200).json({ user })
@@ -66,7 +76,7 @@ export class UserController {
 
         return res.status(404).json({ error: error.message })
       }
-      throw error
+      return res.status(404).json({ error: error.message })
     }
   }
 

@@ -13,6 +13,7 @@ model Users {
   email        String    @db.VarChar(127)
   passwordHash String    @db.VarChar(127)
   birthAt      DateTime? @db.Date()
+  role         Int       @default(1)
   created_at   DateTime  @default(now())
   update_at    DateTime  @default(now())
 

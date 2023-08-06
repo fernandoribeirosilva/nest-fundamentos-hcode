@@ -39,6 +39,8 @@ export class UserService {
   }
 
   async show(id: string) {
+    console.log(id)
+
     const existsUser = await this.prisma.users.count({
       where: { id },
     })
@@ -59,7 +61,7 @@ export class UserService {
 
   async update(
     id: string,
-    { name, email, password, birthAt }: UpdatePutUserDTO,
+    { name, email, password, birthAt, role }: UpdatePutUserDTO,
   ) {
     if (!(await this.show(id))) {
       throw new NotFoundException('O usuário não existe.')
@@ -74,6 +76,7 @@ export class UserService {
         email,
         birthAt: new Date(birthAt) ?? null,
         passwordHash: password,
+        role,
       },
     })
 

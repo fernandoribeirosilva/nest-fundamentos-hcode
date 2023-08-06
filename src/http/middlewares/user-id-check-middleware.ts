@@ -1,22 +1,26 @@
-import { BadRequestException, NestMiddleware } from '@nestjs/common'
+import { NestMiddleware } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
-import { z } from 'zod'
+import { ZodError, z } from 'zod'
 
 export class UserIdCheckMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.params
-    console.log('UserIdCheckMiddleware', 'antes')
+    try {
+      const paramsSchema = z.object({
+        id: z.string().uuid(),
+      })
 
-    const data = z.string().uuid()
+      paramsSchema.parse(req.params)
 
-    const reqParams = data.parse(id)
+      next()
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.log(error)
 
-    if (reqParams) {
-      throw new BadRequestException('Id Invalid!')
+        return res
+          .status(400)
+          .send({ message: 'Id invalid', issues: error.issues })
+      }
+      throw error
     }
-
-    console.log('UserIdCheckMiddleware', 'depois')
-
-    next()
   }
 }

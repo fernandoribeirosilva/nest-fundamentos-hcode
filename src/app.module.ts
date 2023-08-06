@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common'
-import { UserModule } from './http/controllers/user/user.module'
+import { Module, forwardRef } from '@nestjs/common'
 import { AuthJwtModule } from './http/auth/auth-jwt-module'
+import { UserModule } from './http/controllers/user/user.module'
 
 @Module({
-  imports: [UserModule, AuthJwtModule],
+  imports: [forwardRef(() => UserModule), forwardRef(() => AuthJwtModule)],
   controllers: [],
   providers: [],
 })
