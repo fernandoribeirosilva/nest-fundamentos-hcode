@@ -67,6 +67,8 @@ export class UserService {
       throw new NotFoundException('O usuário não existe.')
     }
 
+    const passwordHash = await hash(password, 6)
+
     const user = await this.prisma.users.update({
       where: {
         id,
@@ -75,7 +77,7 @@ export class UserService {
         name,
         email,
         birthAt: new Date(birthAt) ?? null,
-        passwordHash: password,
+        passwordHash,
         role,
       },
     })
@@ -94,6 +96,7 @@ export class UserService {
       if (prop) {
         dataUser = {
           ...data,
+          password: await hash(data.password, 6),
           birthAt: prop === 'birthAt' ? new Date(data[prop]) : null,
         }
       }
@@ -103,15 +106,19 @@ export class UserService {
       where: {
         id,
       },
-      data: dataUser,
+      data: {
+        name: dataUser.name,
+        email: dataUser.email,
+        passwordHash: dataUser.password,
+        birthAt: dataUser.birthAt,
+        role: dataUser.role,
+      },
     })
 
     return { user }
   }
 
   async delete(id: string) {
-    console.log('delete', id)
-
     if (!(await this.show(id))) {
       throw new Error('O usuário não existe.')
     }

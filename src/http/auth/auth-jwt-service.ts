@@ -68,8 +68,13 @@ export class AuthJwtService {
       },
     })
 
-    const isValidEmail = await compare(password, user.passwordHash)
-    if (!user && !isValidEmail) {
+    if (!user) {
+      throw new UnauthorizedException('E-mail e/ou senha incorretos!')
+    }
+
+    const isValidPassword = await compare(password, user.passwordHash)
+
+    if (!isValidPassword) {
       throw new UnauthorizedException('E-mail e/ou senha incorretos!')
     }
 

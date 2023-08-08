@@ -45,7 +45,7 @@ export class UserController {
     }
   }
 
-  // @Roles(Role.Admin, Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get()
   async list(@Res() res: Response) {
     try {
