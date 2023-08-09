@@ -7,6 +7,9 @@ import { LogInterceptor } from './http/interceptors/log-.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
+  // configuração do CORS
+  app.enableCors()
+
   // vai servir para validar qualquer rota global que usa DTO
   app.useGlobalPipes(new ValidationPipe())
 
