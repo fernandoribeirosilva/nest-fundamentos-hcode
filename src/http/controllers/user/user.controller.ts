@@ -23,12 +23,16 @@ import { UserService } from './user.service'
 
 // @UseInterceptors(LogInterceptor)
 @Roles(Role.Admin)
-@UseGuards(AuthGuard, RoleGuard)
+// @UseGuards(ThrottlerGuard, AuthGuard, RoleGuard) // colocando na aplicação com um todo
+@UseGuards(AuthGuard, RoleGuard) // colocando na aplicação com um todo
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // @UseInterceptors(LogInterceptor)
+  // @UseGuards(ThrottlerGuard) // ta usando a configuração padrão
+  // @UseGuards(new ThrottlerGuard({})) // sobrescrevendo a configuração padrão
+  // @SkipThrottle() // o Throttler vai ignorar esta rota
   @Post()
   async create(@Res() res: Response, @Body() body: CreateUserDTO) {
     try {
